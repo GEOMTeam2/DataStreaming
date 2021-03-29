@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.82.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/pbf@3.0.5/dist/pbf.js"></script>
+    <script src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+
+    <title>Dashboard Template · Bootstrap v5.0</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
+
+	<!-- for map-->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<style>
+			#mapdiv{
+        margin:100px;
+		top: 3px;
+				width: 800px;
+				height:500px;
+			}
+		</style>
+
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" rel="stylesheet">
+  </head>
+  <body>
+
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">MTA Planner</a>
+  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+  <ul class="navbar-nav px-3">
+    <li class="nav-item text-nowrap">
+      <a class="nav-link" href="#">Sign out</a>
+    </li>
+  </ul>
+</header>
+
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+              <span data-feather="home"></span>
+              Trip Planner
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Schedule
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="layers"></span>
+              Transit Lines
+            </a>
+          </li>
+        </ul>
+
+
+		<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+          <span>MORE</span>
+          <a class="link-secondary" href="#" aria-label="Add a new report">
+            <span data-feather="plus-circle"></span>
+          </a>
+		</h6>
+		   </div>
+    </nav>
+
+		<!--
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Current month
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Last quarter
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Social engagement
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Year-end sale
+            </a>
+          </li>
+        </ul>
+		-->
+
+
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Trip Planner</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            This week
+          </button>
+        </div>
+      </div>
+
+
+		<!--map stuff-->
+		<div id = "mapdiv"></div>
+
+				<script type = "text/javascript">
+
+             var map = L.map("mapdiv").setView([40.7128, - 74.0060], 12);
+
+             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+             maxZoom: 19
+             }).addTo(map);
+
+             function routes(response2,marker){
+               $.ajax({
+                   dataType: "json",
+                   url: response2,
+                   success: function(result){
+                   test = JSON.parse(result.contents)
+                   console.log(test)
+                   len2 = test['Siri']['ServiceDelivery']['StopMonitoringDelivery'][0]["MonitoredStopVisit"].length
+                   for (y = 0; y<len2; y++){
+                     console.log(test['Siri']['ServiceDelivery']['StopMonitoringDelivery'][0]["MonitoredStopVisit"][y]["MonitoredVehicleJourney"]["LineRef"])
+                     Route = test['Siri']['ServiceDelivery']['StopMonitoringDelivery'][0]["MonitoredStopVisit"][y]["MonitoredVehicleJourney"]["LineRef"]
+                     arrivaltime = test['Siri']['ServiceDelivery']['StopMonitoringDelivery'][0]["MonitoredStopVisit"][y]["MonitoredVehicleJourney"]["MonitoredCall"]["ExpectedArrivalTime"]
+                     marker.bindPopup("<p><b>Route: </b>" + Route + "</p>" + "<p><b>Expected Arrival Time: </b>" + arrivaltime + "</p>");
+                            marker.on('mouseover', function (e) {
+                                this.openPopup();
+                            });
+                            marker.on('mouseout', function (e) {
+                                this.closePopup();
+                            });
+                     }
+                   }
+                 });
+
+             }
+
+             var markergroup = new L.featureGroup();
+             map.on('click', function(e){
+                     var coord = e.latlng;
+                     var lat = coord.lat;
+                     var lng = coord.lng;
+
+                     /* Get stop location */
+                     var response = 'https://api.allorigins.win/get?url=' + encodeURIComponent('http://bustime.mta.info/api/where/stops-for-location.json?' + "lat=" + lat + "&lon=" + lng + "&latSpan=0.005&lonSpan=0.005&key=295d961b-9a88-452e-9782-c32602c279ff")
+                     $.getJSON(response,function(result) {temp=JSON.parse(result.contents)
+                         len = temp['data']['stops'].length
+
+                         for (i = 0; i < len; i++){
+                             var lat = temp['data']['stops'][i]['lat']
+                             var long = temp['data']['stops'][i]['lon']
+                             var marker = L.marker([lat,long]) .addTo(map)
+                             console.log("Hello")
+                             for (z=0; z<4; z++){
+                               console.log("A loop")
+                             }
+
+                         routes(response2='https://api.allorigins.win/get?url=' + encodeURIComponent("http://bustime.mta.info/api/siri/stop-monitoring.json?key=295d961b-9a88-452e-9782-c32602c279ff&MonitoringRef=" + temp['data']['stops'][i]['code']),marker)
+
+                         }
+
+                       });
+                   })
+
+
+				</script>
+
+
+    </main>
+  </div>
+</div>
+
+
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+
+      <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="dashboard.js"></script>
+  </body>
+</html>
